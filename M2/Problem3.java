@@ -21,6 +21,20 @@ public class Problem3 {
         Object[] output = new Object[arr.length];
         //hint: use the arr variable; don't diretly use the a1-a4 variables
         //TODO convert each value to positive
+        for (int i = 0; i < arr.length; i++) {
+            if (arr[i] instanceof Integer) {
+                output[i] = Integer.valueOf(Math.abs((Integer) arr[i]));
+            } else if (arr[i] instanceof Double) {
+                output[i] = Double.valueOf(Math.abs((Double) arr[i]));
+            } else if (arr[i] instanceof String) {
+                double doubleValue = Double.parseDouble((String) arr[i]);
+                output[i] = String.valueOf(Math.abs(doubleValue));
+            } else {
+                // Unsupported data type, set the output to null
+                output[i] = null;
+            }
+        }
+
         //set the result to the proper index of the output array
         //hint: don't forget to handle the data types properly, the result datatype should be the same as the original datatype
         
