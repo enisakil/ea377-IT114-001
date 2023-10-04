@@ -127,11 +127,28 @@ public class NumberGuesser4 {
             return;
         }
         System.out.println("You guessed " + guess);
+        int difference = Math.abs(guess-number);
         if (guess == number) {
             win();
             pickNewRandom = true;
         } else {
-            System.out.println("That's wrong");
+            if (guess < number && difference <=2){
+            System.out.println("That's wrong. You're hot! Go higher!");
+            } else if (guess < number && difference <=5) {
+            System.out.println("That's wrong. You're getting warmer. Go higher!");
+            } else if (guess < number && difference <=10) {
+            System.out.println("That's wrong. You're cold. Go higher!");    
+            } else if (guess > number && difference <=2) {
+            System.out.println("That's wrong. You're hot! Go lower!");
+            } else if (guess > number && difference <=5) {
+            System.out.println("That's wrong. You're getting warmer. Go lower!");
+            } else if (guess > number && difference <=10) {
+            System.out.println("That's wrong. You're cold. Go lower!");
+            } else if (guess < number && difference >=20) {
+            System.out.println("That's wrong. You're ice cold. Go higher!");
+            } else if (guess > number && difference >=20) {
+            System.out.println("That's wrong. You're ice cold. Go lower!");
+            }
             strikes++;
             if (strikes >= maxStrikes) {
                 lose();
