@@ -1,4 +1,4 @@
-package M4.Part3;
+package M4.Part3HW;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -92,8 +92,9 @@ public class Client {
      * 
      * @param text
      * @return true if a text was a command or triggered a command
+     * @throws IOException
      */
-    private boolean processCommand(String text) {
+    private boolean processCommand(String text) throws IOException {
         if (isConnection(text)) {
             // replaces multiple spaces with single space
             // splits on the space after connect (gives us host and port)
@@ -104,9 +105,17 @@ public class Client {
         } else if (isQuit(text)) {
             isRunning = false;
             return true;
+        }  else if (text.equalsIgnoreCase("start") || text.equalsIgnoreCase("stop") || text.startsWith("guess")) {
+            out.writeObject(text);
+            return true;
+        } else if (text.equalsIgnoreCase("toss") || text.equalsIgnoreCase("flip")) {
+            // Implement logic to send these commands to the server
+            out.writeObject(text);
+            return true;
         }
         return false;
     }
+
 
     private void listenForKeyboard() {
         inputThread = new Thread() {

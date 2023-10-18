@@ -1,4 +1,4 @@
-package M4.Part3;
+package M4.Part3HW;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -16,7 +16,7 @@ public class ServerThread extends Thread {
     // more easily
 
     private void info(String message) {
-        System.out.println(String.format("Thread[%s]: %s", getId(), message));
+        System.out.println(String.format("Thread[%s]: %s", threadId(), message));
     }
 
     public ServerThread(Socket myClient, Server server) {
@@ -61,7 +61,7 @@ public class ServerThread extends Thread {
             ) {
 
                 info("Received from client: " + fromClient);
-                server.broadcast(fromClient, this.getId());
+                server.broadcast(fromClient, this.threadId());
             } // close while loop
         } catch (Exception e) {
             // happens when client disconnects

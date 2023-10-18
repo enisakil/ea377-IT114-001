@@ -1,4 +1,4 @@
-package M4.Part3;
+package M4.Part3HW;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -6,11 +6,16 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Random;
 
 public class Server {
     int port = 3001;
     // connected clients
     private List<ServerThread> clients = new ArrayList<ServerThread>();
+
+    private boolean gameActive = false;
+    private int hiddenNumber = 0;
+
 
     private void start(int port) {
         this.port = port;
@@ -44,10 +49,10 @@ public class Server {
 	}
     
     protected synchronized void broadcast(String message, long id) {
-        if(processCommand(message, id)){
-
+        if (processCommand(message, id) || processGameCommand(message, id) || processCoinToss(message, id)) {
             return;
         }
+        
         // let's temporarily use the thread id as the client identifier to
         // show in all client's chat. This isn't good practice since it's subject to
         // change as clients connect/disconnect
@@ -83,7 +88,47 @@ public class Server {
             return true;
         }
         return false;
+    
     }
+    private boolean processGameCommand(String message, long id) {
+        String username = "User[" + id + "]";
+    if (message.equalsIgnoreCase("start")) {
+        if (!gameActive) {
+            hiddenNumber = new Random().nextInt(100) + 1;
+            gameActive = true;
+            broadcast("Game started by " + username + "! Guess the number between 1-100. Start each guess with 'guess' followed by the number .", id);
+        }
+        return true;
+    } else if (message.equalsIgnoreCase("stop")) {
+        if (gameActive) {
+            gameActive = false;
+            broadcast("Game stopped by " + username + ".", id);
+        }
+        return true;
+    } else if (message.startsWith("guess") && gameActive) {
+        int guess = Integer.parseInt(message.split(" ")[1]);
+        String guessMessage = username + " guessed " + guess;
+        if (guess == hiddenNumber) {
+            guessMessage += "and it's correct! The number was " + hiddenNumber;
+        } else {
+            guessMessage += ". That is incorrect.";
+        }
+        broadcast(guessMessage, id);
+        return true;
+    }
+    return false;
+}
+    private boolean processCoinToss(String message, long id) {
+        String username = "User[" + id + "]";
+        if (message.equalsIgnoreCase("toss") || message.equalsIgnoreCase("flip")) {
+            String result = (new Random().nextBoolean()) ? "heads" : "tails";
+            broadcast( username + " flipped a coin and got " + result, id);
+            return true;
+    }
+        return false;
+}
+
+
     public static void main(String[] args) {
         System.out.println("Starting Server");
         Server server = new Server();
