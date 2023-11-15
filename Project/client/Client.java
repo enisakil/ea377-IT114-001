@@ -162,11 +162,19 @@ public enum Client {
                 System.out.println(String.format("%s[%s]", user.getValue(), user.getKey()));
             }
             return true;
+        } else if (text.equalsIgnoreCase("/ready")) {
+            sendReadyStatus();
         }
         return false;
     }
 
     // Send methods
+    protected void sendReadyStatus() throws IOException {
+        Payload p = new Payload();
+        p.setPayloadType(PayloadType.READY);
+        out.writeObject(p);
+    }
+
     protected void sendListRooms(String query) throws IOException {
         Payload p = new Payload();
         p.setPayloadType(PayloadType.GET_ROOMS);
@@ -342,6 +350,12 @@ public enum Client {
                 break;
             case RESET_USER_LIST:
                 userList.clear();
+                break;
+            case READY:
+                System.out.println(String.format("Player %s is ready", getClientNameById(p.getClientId())));
+                break;
+            case PHASE:
+                System.out.println(String.format("The current phase is %s", p.getMessage()));
                 break;
             default:
                 logger.warning(String.format("Unhandled Payload type: %s", p.getPayloadType()));
