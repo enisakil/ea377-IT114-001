@@ -6,6 +6,7 @@ import java.util.logging.Logger;
 
 import Project.common.Constants;
 import Project.common.Phase;
+import Project.common.Question;
 import Project.common.TimedEvent;
 
 public class GameRoom extends Room {
@@ -13,9 +14,13 @@ public class GameRoom extends Room {
     private static Logger logger = Logger.getLogger(GameRoom.class.getName());
     private TimedEvent readyTimer = null;
     private ConcurrentHashMap<Long, ServerPlayer> players = new ConcurrentHashMap<Long, ServerPlayer>();
+    //ea377 11/15/23
+    private QuestionDatabase questionDatabase;
 
-    public GameRoom(String name) {
+    //ea377 11/15/23
+    public GameRoom(String name, QuestionDatabase questionDatabase) {
         super(name);
+        this.questionDatabase = questionDatabase;
     }
 
     @Override
@@ -28,7 +33,10 @@ public class GameRoom extends Room {
             return player;
         });
     }
-
+    //ea377 11/15/23
+    public void setQuestionDatabase(QuestionDatabase questionDatabase) {
+        this.questionDatabase = questionDatabase;
+    }
     protected void setReady(ServerThread client) {
         logger.info("Ready check triggered");
         if (currentPhase != Phase.READY) {
@@ -90,6 +98,21 @@ public class GameRoom extends Room {
                 .setTickCallback((time) -> {
                     sendMessage(null, String.format("Example running session, time remaining: %s", time));
                 });
+        Question randomQuestion = questionDatabase.getRandomQuestion("SomeCategory"); // Replace "SomeCategory" with the actual category
+    if (randomQuestion != null) {
+        sendMessage(null, "Session started. Here's your question:");
+        sendMessage(null, randomQuestion.getText());
+        sendMessage(null, "Options: " + String.join(", ", randomQuestion.getOptions()));
+        // You may want to send options and handle answers here
+    } else {
+        sendMessage(null, "No questions available in the specified category. Ending session.");
+        resetSession();
+    }
+
+    new TimedEvent(30, () -> resetSession())
+        .setTickCallback((time) -> {
+            sendMessage(null, String.format("Example running session, time remaining: %s", time));
+        });
     }
 
     private synchronized void resetSession() {

@@ -1,7 +1,9 @@
 package Project.common;
 
+//ea377 11/15/23
+//Added READY, PICK, PASS, SCORE payload types
 public enum PayloadType {
     CONNECT, DISCONNECT, MESSAGE, CLIENT_ID, RESET_USER_LIST,
     SYNC_CLIENT, CREATE_ROOM, JOIN_ROOM, GET_ROOMS,
-    READY, PHASE
+    READY, PHASE, PICK, PASS, SCORE
 }

@@ -24,6 +24,8 @@ public enum Server {
     private Queue<ServerThread> incomingClients = new LinkedList<ServerThread>();
     // https://www.geeksforgeeks.org/killing-threads-in-java/
     private volatile boolean isRunning = false;
+    // ea377 11/15/23
+    private QuestionDatabase questionDatabase;
 
     private void start(int port) {
         this.port = port;
@@ -37,6 +39,8 @@ public enum Server {
             // create a lobby on start
             lobby = new Room(Constants.LOBBY);
             rooms.add(lobby);
+            // ea377 11/15/23
+            questionDatabase = new QuestionDatabase();
             do {
                 logger.info("Waiting for next client");
                 if (incoming_client != null) {
@@ -139,20 +143,26 @@ public enum Server {
      * @param roomName The desired room to create
      * @return true if it was created and false if it exists
      */
+
+     // ea377 11/15/23
+     private GameRoom createNewGameRoom(String roomName) {
+        GameRoom gameRoom = new GameRoom(roomName, questionDatabase);
+        gameRoom.setQuestionDatabase(questionDatabase);
+        rooms.add(gameRoom);
+        return gameRoom;
+    }
+
     protected synchronized boolean createNewRoom(String roomName) {
         if (getRoom(roomName) != null) {
-            // TODO Room exists; can't create room
             logger.info(String.format("Room %s already exists", roomName));
             return false;
         } else {
-            // TODO, all non-lobby rooms will be games
-            // Room room = new Room(roomName); //chatroom project can just use regular rooms
-            GameRoom room = new GameRoom(roomName); // all other projects
-            rooms.add(room);
+            createNewGameRoom(roomName); // Use the new method to create a GameRoom
             logger.info(String.format("Created new room %s", roomName));
             return true;
         }
     }
+
 
     /**
      * Returns Rooms with names having a partial match with query.
