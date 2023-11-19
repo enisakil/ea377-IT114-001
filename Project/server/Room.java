@@ -203,6 +203,22 @@ public class Room implements AutoCloseable {
             }
         }
     }
+	// ea377 11/15/23
+	//ea377 11/18/23
+	protected synchronized void broadcast(Object message) {
+        if (!isRunning) {
+            return;
+        }
+        logger.info(String.format("Broadcasting message to %s clients", clients.size()));
+        Iterator<ServerThread> iter = clients.iterator();
+        while (iter.hasNext()) {
+            ServerThread client = iter.next();
+            boolean messageSent = client.sendMessage(Constants.DEFAULT_CLIENT_ID, message);
+            if (!messageSent) {
+                handleDisconnect(iter, client);
+            }
+        }
+    }
 
     protected synchronized void sendConnectionStatus(ServerThread sender, boolean isConnected) {
         Iterator<ServerThread> iter = clients.iterator();

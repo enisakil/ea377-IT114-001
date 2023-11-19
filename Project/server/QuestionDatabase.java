@@ -28,15 +28,34 @@ public class QuestionDatabase {
         // Add a question to the corresponding category
         categoryQuestions.computeIfAbsent(question.getCategory(), k -> new ArrayList<>()).add(question);
     }
-
-    public Question getRandomQuestion(String category) {
-        if (!categoryQuestions.containsKey(category) || categoryQuestions.get(category).isEmpty()) {
-            return null; // Handle the case where there are no questions in the specified category
+//ea377 11/15/23
+    public String getRandomCategory() {
+        if (categoryQuestions.isEmpty()) {
+            return null; // Handle the case where there are no categories
         }
 
-        List<Question> questionsInCategory = categoryQuestions.get(category);
+        List<String> categories = new ArrayList<>(categoryQuestions.keySet());
         Random random = new Random();
-        int randomIndex = random.nextInt(questionsInCategory.size());
-        return questionsInCategory.get(randomIndex);
+        int randomIndex = random.nextInt(categories.size());
+        return categories.get(randomIndex);
     }
-}
+
+    public Question getRandomQuestion(String category) {
+        if (categoryQuestions.containsKey(category)) {
+            List<Question> questionsInCategory = categoryQuestions.get(category);
+
+            if (!questionsInCategory.isEmpty()) {
+                Random random = new Random();
+                int randomIndex = random.nextInt(questionsInCategory.size());
+                return questionsInCategory.get(randomIndex);
+            } else {
+                // Handle the case where there are no questions in the specified category
+                return null;
+            }
+        } else {
+            // Handle the case where the category is not found
+            return null;
+        }
+    }
+
+    }

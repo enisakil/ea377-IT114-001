@@ -130,7 +130,7 @@ public class ServerThread extends Thread {
         return send(p);
     }
 
-    public boolean sendMessage(long clientId, String message) {
+    public boolean sendMessage(long clientId, Object message) {
         Payload p = new Payload();
         p.setPayloadType(PayloadType.MESSAGE);
         p.setClientId(clientId);
@@ -205,22 +205,39 @@ public class ServerThread extends Thread {
                 break;
             case MESSAGE:
                 if (currentRoom != null) {
-                    currentRoom.sendMessage(this, p.getMessage());
+                    currentRoom.sendMessage(this, p.getMessage().toString());
                 } else {
                     // TODO migrate to lobby
                     logger.log(Level.INFO, "Migrating to lobby on message with null room");
                     Room.joinRoom(Constants.LOBBY, this);
                 }
                 break;
+            //ea377 11/18/23
             case GET_ROOMS:
-                Room.getRooms(p.getMessage().trim(), this);
-                break;
+            Object getRoomsMessage = p.getMessage();
+            if (getRoomsMessage instanceof String) {
+                Room.getRooms(((String) getRoomsMessage).trim(), this);
+            } else {
+                // Handle non-string messages as needed
+                logger.warning("Received non-string message in GET_ROOMS payload");
+            }
+            break;
             case CREATE_ROOM:
-                Room.createRoom(p.getMessage().trim(), this);
-                break;
+            Object createRoomMessage = p.getMessage();
+            if (createRoomMessage instanceof String) {
+                Room.createRoom(((String) createRoomMessage).trim(), this);
+            } else {
+                logger.warning("Received non-string message in CREATE_ROOM payload");
+            }
+            break;
             case JOIN_ROOM:
-                Room.joinRoom(p.getMessage().trim(), this);
-                break;
+            Object joinRoomMessage = p.getMessage();
+            if (joinRoomMessage instanceof String) {
+                Room.joinRoom(((String) joinRoomMessage).trim(), this);
+            } else {
+                logger.warning("Received non-string message in JOIN_ROOM payload");
+            }
+            break;
             case READY:
                 try {
                     ((GameRoom) currentRoom).setReady(this);
@@ -229,11 +246,27 @@ public class ServerThread extends Thread {
                     e.printStackTrace();
                 }
                 break;
+            //ea377 11/18/23
+            case PICK:
+            handlePlayerPick(p.getMessage());
+                break;
+            case START_GAME:
+                handleStartGameCommand(p.getClientId());
+                break;
             default:
                 break;
 
         }
 
+    }
+    //ea377 11/18/23
+    private void handlePlayerPick(Object pickedAnswer) {
+        String pick = pickedAnswer.toString();
+        // Forward the pick to the GameRoom
+        GameRoom.handlePlayerPick(getClientId(), pick);
+    }
+    private void handleStartGameCommand(long clientId) {
+        GameRoom.startGameSession();
     }
 
     private void cleanup() {

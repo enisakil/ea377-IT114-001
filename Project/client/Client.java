@@ -164,9 +164,22 @@ public enum Client {
             return true;
         } else if (text.equalsIgnoreCase("/ready")) {
             sendReadyStatus();
+        // ea377 11/18/23
+        } else if (text.startsWith("/pick")) {
+            String pick = text.replace("/pick", "").trim();
+                try {
+                sendPick(pick);
+                } catch (IOException e) {
+                    e.printStackTrace();
+        }
+            return true;
+        } else if (text.equalsIgnoreCase("/startgame")) {
+            sendStartGameCommand();
+            return true;
+
         }
         return false;
-    }
+        }
 
     // Send methods
     protected void sendReadyStatus() throws IOException {
@@ -214,6 +227,19 @@ public enum Client {
         p.setPayloadType(PayloadType.MESSAGE);
         p.setMessage(message);
         p.setClientName(clientName);
+        out.writeObject(p);
+
+    }
+    //ea377
+    protected void sendPick(String pick) throws IOException {
+        Payload p = new Payload();
+        p.setPayloadType(PayloadType.PICK);
+        p.setMessage(pick);
+        out.writeObject(p);
+    }
+    private void sendStartGameCommand() throws IOException {
+        Payload p = new Payload();
+        p.setPayloadType(PayloadType.START_GAME);
         out.writeObject(p);
     }
 
@@ -356,6 +382,12 @@ public enum Client {
                 break;
             case PHASE:
                 System.out.println(String.format("The current phase is %s", p.getMessage()));
+                break;
+            //ea377 11/18/23
+            case PICK:
+                System.out.println(String.format("%s picked: %s",
+                getClientNameById(p.getClientId()),
+                p.getMessage()));
                 break;
             default:
                 logger.warning(String.format("Unhandled Payload type: %s", p.getPayloadType()));
