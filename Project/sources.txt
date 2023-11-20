@@ -1,4 +1,5 @@
 ./server/Room.java
+./server/QuestionDatabase.java
 ./server/GameRoom.java
 ./server/ServerThread.java
 ./server/ServerPlayer.java
@@ -7,6 +8,7 @@
 ./common/TimedEvent.java
 ./common/RoomResultPayload.java
 ./common/Payload.java
+./common/Question.java
 ./common/Player.java
 ./common/PayloadType.java
 ./common/Constants.java

@@ -14,13 +14,15 @@ public class QuestionDatabase {
 
     public QuestionDatabase() {
         this.categoryQuestions = new HashMap<>();
-        initializeQuestions(); // You can populate questions in your actual implementation
+        initializeQuestions();
     }
 
     private void initializeQuestions() {
         // Add sample questions to the database with categories
-        addQuestion(new Question("What is the capital of France?", new String[]{"Berlin", "Madrid", "Paris", "Rome"}, 2, "Geography"));
+        addQuestion(new Question("What is the capital of France?", new String[]{"Berlin", "Madrid", "Paris", "Rome"}, 2, "Geography: Europe"));
         addQuestion(new Question("Which planet is known as the Red Planet?", new String[]{"Earth", "Mars", "Jupiter", "Venus"}, 1, "Space"));
+        addQuestion(new Question("What is the capital of New York", new String[]{"New York City", "Little Rock", "Rochester", "Albany"}, 3, "Geography: America"));
+
         // Add more questions as needed
     }
 

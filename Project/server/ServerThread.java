@@ -46,6 +46,7 @@ public class ServerThread extends Thread {
         this.currentRoom = room;
 
     }
+ 
 
     protected void setClientName(String name) {
         if (name == null || name.isBlank()) {
@@ -263,10 +264,10 @@ public class ServerThread extends Thread {
     private void handlePlayerPick(Object pickedAnswer) {
         String pick = pickedAnswer.toString();
         // Forward the pick to the GameRoom
-        GameRoom.handlePlayerPick(getClientId(), pick);
+        ((GameRoom)currentRoom).handlePlayerPick(getClientId(), pick);
     }
     private void handleStartGameCommand(long clientId) {
-        GameRoom.startGameSession();
+        ((GameRoom)currentRoom).startGameSession();
     }
 
     private void cleanup() {

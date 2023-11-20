@@ -291,6 +291,7 @@ public enum Client {
                     Payload fromServer;
 
                     // while we're connected, listen for objects from server
+                    
                     while (isRunning && !server.isClosed() && !server.isInputShutdown()
                             && (fromServer = (Payload) in.readObject()) != null) {
 
@@ -388,6 +389,9 @@ public enum Client {
                 System.out.println(String.format("%s picked: %s",
                 getClientNameById(p.getClientId()),
                 p.getMessage()));
+                break;
+            case START_GAME:
+                System.out.println(String.format("The game is starting", p.getMessage()));
                 break;
             default:
                 logger.warning(String.format("Unhandled Payload type: %s", p.getPayloadType()));
