@@ -52,7 +52,10 @@ public class GameRoom extends Room {
                 handleGameLogic(randomQuestion);
 
                 // Start a timer for the game session or perform other actions
+                //Probably should delete this since HandleGameLogic already makes a call to startRoundTimer
                 startRoundTimer(60);
+
+                endRound();
             } else {
                 // Handle the case where there are no questions in the random category
                 broadcast("Game session cannot start. No questions available in the category.");
@@ -113,7 +116,7 @@ private long calculatePoints(boolean isCorrect, long responseTime) {
     // TODO: Customize the points calculation based on your game's scoring rules
     // For example, you can give more points for correct answers and quicker response times
     long basePoints = isCorrect ? 10 : 0;
-    long timeBonus = Math.max(0, 10 - responseTime); // Example: Give up to 10 bonus points for quicker responses
+    long timeBonus = Math.max(0, 10 - responseTime); //10 bonus points for quicker responses
     return basePoints + timeBonus;
 }
 private ServerPlayer getPlayerById(long playerId) {
@@ -187,7 +190,7 @@ private ServerPlayer getPlayerById(long playerId) {
                     readyTimer.cancel();
                     readyTimer = null;
                 }
-                start();
+                startGameSession();
             }
 
         } else {
@@ -200,12 +203,17 @@ private ServerPlayer getPlayerById(long playerId) {
     //ea377 11/18/23
     //Still need to make it so round
     private void startRoundTimer(int seconds) {
-        roundTimer = new TimedEvent(60, this::endRound);
-        roundTimer.setTickCallback((timeRemaining) -> {
-            // Broadcast the time remaining to all players
-            
-        });
-    }
+        updatePhase(Phase.IN_PROGRESS);
+    // TODO example
+    sendMessage(null, "New Round started");
+    roundTimer = new TimedEvent(seconds, () -> {
+        // Action to perform when the timer reaches 0 (e.g., reset the session)
+        resetSession();
+    }); // Start the timer
+        }
+
+        
+    
 
     //ea37 11/18/23
     public void handlePlayerPick(long playerId, String pickedAnswer) {
@@ -283,6 +291,7 @@ private ServerPlayer getPlayerById(long playerId) {
 
     //^ea377 11/18/2023
 
+    //WILL NOT BE USING START METHOD BELOW
     private void start() {
         updatePhase(Phase.IN_PROGRESS);
         // TODO example

@@ -147,6 +147,11 @@ public class ServerThread extends Thread {
         p.setMessage(String.format("%s the room %s", (isConnected ? "Joined" : "Left"), currentRoom.getName()));
         return send(p);
     }
+    public void sendPick(String pickedAnswer) {
+        Payload pickPayload = new Payload();
+        pickPayload.setPayloadType(PayloadType.PICK);
+        pickPayload.setMessage("/pick " + pickedAnswer);
+    }
 
     private boolean send(Payload payload) {
         try {
