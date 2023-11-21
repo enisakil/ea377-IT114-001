@@ -16,7 +16,7 @@ public class QuestionDatabase {
         this.categoryQuestions = new HashMap<>();
         initializeQuestions();
     }
-
+//ea377 11/21/22
     private void initializeQuestions() {
         // Add sample questions to the database with categories
         addQuestion(new Question("What is the capital of France?", new String[]{"Berlin", "Madrid", "Paris", "Rome"}, 2, "Geography: Europe"));

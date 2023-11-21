@@ -53,7 +53,7 @@ public class GameRoom extends Room {
 
                 // Start a timer for the game session or perform other actions
                 //Probably should delete this since HandleGameLogic already makes a call to startRoundTimer
-                startRoundTimer(60);
+                //startRoundTimer(60);
 
                 endRound();
             } else {
@@ -69,6 +69,7 @@ public class GameRoom extends Room {
 
     // Set the current question for later reference
 
+//ea377 11/21/23
     private void handleGameLogic(Question question) {
         currentQuestion = question;
         // TODO: Implement game logic using questions
@@ -96,6 +97,9 @@ public class GameRoom extends Room {
 
                 // Update player scores
                 playerScores.put(player, points);
+                
+                // Update player's total score
+                player.addtoTotalScore(points);
             }
         });
 
@@ -106,7 +110,7 @@ public class GameRoom extends Room {
         resetRound();
     });
 }
-
+//ea377 11/21/23
 private boolean isAnswerCorrect(String pickedAnswer) {
     // Compare the picked answer with the correct answer
     int correctOptionIndex = currentQuestion.getCorrectOptionIndex();
@@ -115,13 +119,18 @@ private boolean isAnswerCorrect(String pickedAnswer) {
 private long calculatePoints(boolean isCorrect, long responseTime) {
     // TODO: Customize the points calculation based on your game's scoring rules
     // For example, you can give more points for correct answers and quicker response times
-    long basePoints = isCorrect ? 10 : 0;
-    long timeBonus = Math.max(0, 10 - responseTime); //10 bonus points for quicker responses
-    return basePoints + timeBonus;
+    if(isCorrect) {
+        long basePoints = isCorrect ? 10 : 0;
+        long timeBonus = Math.max(0, 10 - responseTime); //10 bonus points for quicker responses
+        return basePoints + timeBonus;
+    } else {
+        return 0;
+}
 }
 private ServerPlayer getPlayerById(long playerId) {
     return players.get(playerId);
 }
+
 
 
 
@@ -201,14 +210,13 @@ private ServerPlayer getPlayerById(long playerId) {
         }
     }
     //ea377 11/18/23
-    //Still need to make it so round
     private void startRoundTimer(int seconds) {
         updatePhase(Phase.IN_PROGRESS);
     // TODO example
     sendMessage(null, "New Round started");
     roundTimer = new TimedEvent(seconds, () -> {
         // Action to perform when the timer reaches 0 (e.g., reset the session)
-        resetSession();
+        endRound();
     }); // Start the timer
         }
 
@@ -219,6 +227,7 @@ private ServerPlayer getPlayerById(long playerId) {
     public void handlePlayerPick(ServerThread client, String pickedAnswer) {
         // Store the pick in a data structure, e.g., a Map<Long, String>
         playerPicks.put(client.getClientId(), pickedAnswer);
+        client.sendMessage(Constants.DEFAULT_CLIENT_ID, "Recorded pick of " + pickedAnswer);
     
         // Check if it's the end of the round
         if (allPlayersPicked() || roundTimerExpired()) {
@@ -238,14 +247,51 @@ private ServerPlayer getPlayerById(long playerId) {
         return roundTimer.getRemainingTime() <= 0;
     }
     
+    //ea377 11/21/23
     private void endRound() {
         // Process picks and calculate scores only if everyone has picked or timer expired
     if (allPlayersPicked() || roundTimerExpired()) {
+        // Create an iterator for the playerPicks map
+        Iterator<Map.Entry<Long, String>> iterator = playerPicks.entrySet().iterator();
+
+        // Iterate through the playerPicks map
+        while (iterator.hasNext()) {
+            Map.Entry<Long, String> entry = iterator.next();
+            long playerId = entry.getKey();
+            String pickedAnswer = entry.getValue();
+
+            boolean isCorrect = isAnswerCorrect(pickedAnswer);
+            long responseTime = roundTimer.getRemainingTime() / 1000; // in seconds
+
+            long playerScore = calculatePoints(isCorrect, responseTime);
+
+            String correctAnswer = currentQuestion.getOptions()[currentQuestion.getCorrectOptionIndex()];
+
+
+            // Send each player their correct answer and score
+            //sendPlayerScore(playerId, pickedAnswer, playerScore);
+            ServerPlayer player = getPlayerById(playerId);
+            if (player != null) {
+                String message = "The correct answer was: " + correctAnswer + ". Your score for the round is: " + playerScore + ". Your total score is now: " + player.getTotalScore();
+                player.getClient().sendMessage(Constants.DEFAULT_CLIENT_ID, message);
+            }
+
+            // Remove the entry from the map (optional, depending on your requirements)
+            iterator.remove();
+        }
         broadcastPicks();
+        // Delay before starting the next round (adjust the duration as needed)
+        int delayInSeconds = 5; // 5 seconds delay
+        new TimedEvent(delayInSeconds, this::startNextRound);
         // Calculate scores, broadcast results, etc.
         // Reset for the next roundF
         resetRound();
     }
+}
+private void startNextRound() {
+    // Add logic to start the next round
+    // For example, you can call startGameSession() or handleGameLogic() with a new question
+    startGameSession();
 }
     private void broadcastPicks() {
     // Broadcast picks to all players
