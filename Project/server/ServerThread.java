@@ -131,7 +131,7 @@ public class ServerThread extends Thread {
         return send(p);
     }
 
-    public boolean sendMessage(long clientId, Object message) {
+    public boolean sendMessage(long clientId, String message) {
         Payload p = new Payload();
         p.setPayloadType(PayloadType.MESSAGE);
         p.setClientId(clientId);
@@ -254,7 +254,12 @@ public class ServerThread extends Thread {
                 break;
             //ea377 11/18/23
             case PICK:
-            handlePlayerPick(p.getMessage());
+            try {
+                ((GameRoom)currentRoom).handlePlayerPick(this, p.getMessage() );
+                } catch (Exception e) {
+                    logger.severe(String.format("You cannot submit a pick yet", e.getMessage()));
+                    e.printStackTrace();
+                }
                 break;
             case START_GAME:
                 handleStartGameCommand(p.getClientId());
@@ -266,11 +271,8 @@ public class ServerThread extends Thread {
 
     }
     //ea377 11/18/23
-    private void handlePlayerPick(Object pickedAnswer) {
-        String pick = pickedAnswer.toString();
-        // Forward the pick to the GameRoom
-        ((GameRoom)currentRoom).handlePlayerPick(getClientId(), pick);
-    }
+    // ea377 11/20/23
+    //Got rid of handlePlayerPick command, unnecessary, will also get rid of the of the handleStartGameCommand
     private void handleStartGameCommand(long clientId) {
         ((GameRoom)currentRoom).startGameSession();
     }

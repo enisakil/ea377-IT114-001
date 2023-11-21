@@ -216,22 +216,16 @@ private ServerPlayer getPlayerById(long playerId) {
     
 
     //ea37 11/18/23
-    public void handlePlayerPick(long playerId, String pickedAnswer) {
-        String answer = extractAnswerFromPickCommand(pickedAnswer);
+    public void handlePlayerPick(ServerThread client, String pickedAnswer) {
         // Store the pick in a data structure, e.g., a Map<Long, String>
-        playerPicks.put(playerId, answer);
+        playerPicks.put(client.getClientId(), pickedAnswer);
     
         // Check if it's the end of the round
         if (allPlayersPicked() || roundTimerExpired()) {
             endRound();
         }
     }
-    private String extractAnswerFromPickCommand(String pickedAnswer) {
-        // Extract the answer from the "/pick" command
-        // Assuming the "/pick" command is followed by the answer
-        String[] parts = pickedAnswer.trim().split("\\s+", 2);
-        return (parts.length > 1) ? parts[1] : "";
-    }
+    
     
     private boolean allPlayersPicked() {
         // Check if picks have been received from all players
@@ -262,7 +256,7 @@ private ServerPlayer getPlayerById(long playerId) {
         pickPayload.setClientId(playerId);
         pickPayload.setClientName(getPlayerNameById(playerId));
         pickPayload.setMessage(pick);
-        broadcast(pickPayload);
+        broadcast(pickPayload.toString());
     });
     }
     private void broadcastScores(Map<ServerPlayer, Long> playerScores) {
@@ -272,9 +266,9 @@ private ServerPlayer getPlayerById(long playerId) {
             scorePayload.setPayloadType(PayloadType.SCORE);
             scorePayload.setClientId(player.getClient().getClientId());
             scorePayload.setClientName(player.getClient().getClientName());
-            scorePayload.setMessage(points);
+            scorePayload.setMessage(String.valueOf(points));
     
-            broadcast(scorePayload);
+            broadcast(scorePayload.toString());
         });
     }
     

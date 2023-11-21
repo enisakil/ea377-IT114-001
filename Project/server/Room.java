@@ -205,7 +205,7 @@ public class Room implements AutoCloseable {
     }
 	// ea377 11/15/23
 	//ea377 11/18/23
-	protected synchronized void broadcast(Object message) {
+	protected synchronized void broadcast(String message) {
         if (!isRunning) {
             return;
         }

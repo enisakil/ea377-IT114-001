@@ -46,9 +46,9 @@ public class Payload implements Serializable {
     /**
      * Generic text based message
      */
-    private Object message;
+    private String message;
 
-    public Object getMessage() {
+    public String getMessage() {
         return message;
     }
     //ea377 11/15/23
@@ -81,7 +81,7 @@ public class Payload implements Serializable {
         this.score = score;
     }
     //ea377 11/15/23
-    public void setMessage(Object message) {
+    public void setMessage(String message) {
         this.message = message;
     }
     // ea377 11/15/23
