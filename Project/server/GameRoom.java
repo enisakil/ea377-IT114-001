@@ -251,33 +251,33 @@ private ServerPlayer getPlayerById(long playerId) {
     private void endRound() {
         // Process picks and calculate scores only if everyone has picked or timer expired
     if (allPlayersPicked() || roundTimerExpired()) {
-        // Create an iterator for the playerPicks map
-        Iterator<Map.Entry<Long, String>> iterator = playerPicks.entrySet().iterator();
+        // Iterate through all players
+        for (ServerPlayer player : players.values()) {
+            long playerId = player.getClient().getClientId();
 
-        // Iterate through the playerPicks map
-        while (iterator.hasNext()) {
-            Map.Entry<Long, String> entry = iterator.next();
-            long playerId = entry.getKey();
-            String pickedAnswer = entry.getValue();
+            if (playerPicks.containsKey(playerId)) {
+                // Player submitted an answer, evaluate and calculate points
+                String pickedAnswer = playerPicks.get(playerId);
+                boolean isCorrect = isAnswerCorrect(pickedAnswer);
+                long responseTime = roundTimer.getRemainingTime() / 1000; // in seconds
+                long playerScore = calculatePoints(isCorrect, responseTime);
 
-            boolean isCorrect = isAnswerCorrect(pickedAnswer);
-            long responseTime = roundTimer.getRemainingTime() / 1000; // in seconds
+                // Update player's total score
+                player.addtoTotalScore(playerScore);
 
-            long playerScore = calculatePoints(isCorrect, responseTime);
-
-            String correctAnswer = currentQuestion.getOptions()[currentQuestion.getCorrectOptionIndex()];
-
-
-            // Send each player their correct answer and score
-            //sendPlayerScore(playerId, pickedAnswer, playerScore);
-            ServerPlayer player = getPlayerById(playerId);
-            if (player != null) {
-                String message = "The correct answer was: " + correctAnswer + ". Your score for the round is: " + playerScore + ". Your total score is now: " + player.getTotalScore();
+                // Send each player their correct answer and score
+                String correctAnswer = currentQuestion.getOptions()[currentQuestion.getCorrectOptionIndex()];
+                String message = "The correct answer was: " + correctAnswer +
+                        ". Your score for the round is: " + playerScore +
+                        ". Your total score is now: " + player.getTotalScore();
+                player.getClient().sendMessage(Constants.DEFAULT_CLIENT_ID, message);
+            } else {
+                // Player did not submit an answer, present the correct answer
+                String correctAnswer = currentQuestion.getOptions()[currentQuestion.getCorrectOptionIndex()];
+                String message = "The correct answer was: " + correctAnswer +
+                        ". You did not submit an answer for this round.";
                 player.getClient().sendMessage(Constants.DEFAULT_CLIENT_ID, message);
             }
-
-            // Remove the entry from the map (optional, depending on your requirements)
-            iterator.remove();
         }
         broadcastPicks();
         // Delay before starting the next round (adjust the duration as needed)

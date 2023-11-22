@@ -52,6 +52,7 @@ public class Payload implements Serializable {
         return message;
     }
     //ea377 11/15/23
+    // Ids for when players in the game
     private List<Long> playerIds;
 
     public List<Long> getPlayerIds() {
@@ -61,6 +62,8 @@ public class Payload implements Serializable {
         this.playerIds = playerIds;
     }
 
+    //ea377 11/18/23
+    //getter and setter for answer player chooses
     private int chosenAnswer;
 
     public int getChosenAnswer() {
@@ -71,6 +74,7 @@ public class Payload implements Serializable {
         this.chosenAnswer = chosenAnswer;
     }
 
+    //getter and setter for score of player
     private int score;
 
     public int getScore() {
