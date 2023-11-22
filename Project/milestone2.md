@@ -1,6 +1,6 @@
 <table><tr><td> <em>Assignment: </em> IT114 Trivia Milestone 2</td></tr>
 <tr><td> <em>Student: </em> Enis Akil (ea377)</td></tr>
-<tr><td> <em>Generated: </em> 11/21/2023 10:34:37 PM</td></tr>
+<tr><td> <em>Generated: </em> 11/21/2023 10:46:26 PM</td></tr>
 <tr><td> <em>Grading Link: </em> <a rel="noreferrer noopener" href="https://learn.ethereallab.app/homework/IT114-001-F23/it114-trivia-milestone-2/grade/ea377" target="_blank">Grading</a></td></tr></table>
 <table><tr><td> <em>Instructions: </em> <p>Implement the features from Milestone2 from the proposal document:&nbsp;<a href="https://docs.google.com/document/d/1h2aEWUoZ-etpz1CRl-StaWbZTjkd9BDMq0b6TXK4utI/view">https://docs.google.com/document/d/1h2aEWUoZ-etpz1CRl-StaWbZTjkd9BDMq0b6TXK4utI/view</a></p>
 </td></tr></table>
