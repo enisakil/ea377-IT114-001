@@ -145,6 +145,7 @@ private ServerPlayer getPlayerById(long playerId) {
             super.addClient(client);
             //ea377 11/18/23
             totalPlayers++;
+            client.sendPhaseSync(currentPhase);
             logger.info(String.format("Total clients %s", clients.size()));
             return player;
         });

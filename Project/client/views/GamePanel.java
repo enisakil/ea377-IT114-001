@@ -1,12 +1,14 @@
 package Project.client.views;
 
 import java.awt.CardLayout;
+import java.awt.Component;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.io.IOException;
 import java.util.List;
 
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import Project.client.Card;
@@ -14,6 +16,8 @@ import Project.client.Client;
 import Project.client.ICardControls;
 import Project.client.IGameEvents;
 import Project.common.Phase;
+import Project.common.Question;
+import Project.server.QuestionDatabase;
 
 public class GamePanel extends JPanel implements IGameEvents {
     private CardLayout cardLayout;
@@ -63,7 +67,28 @@ public class GamePanel extends JPanel implements IGameEvents {
         revalidate();
         repaint();
     }
-        
+
+    private void showQuestion(String question, List<String> answerOptions) {
+        resetView();
+
+        JLabel questionLabel = new JLabel(question);
+        add(questionLabel);
+
+        for (String answer : answerOptions) {
+            JButton answerButton = new JButton(answer);
+            answerButton.addActionListener(e -> handleAnswer(answer));
+            add(answerButton);
+        }
+        revalidate();
+        repaint();
+    }
+    private void handleAnswer(String answer) {
+        try {
+            Client.INSTANCE.sendAnswer(answer);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     @Override
     public void onClientConnect(long id, String clientName, String message) {
@@ -110,6 +135,7 @@ public class GamePanel extends JPanel implements IGameEvents {
                 cardLayout.next(this);
             }
         }
+        
     }
 
     @Override

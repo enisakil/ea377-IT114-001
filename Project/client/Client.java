@@ -110,6 +110,14 @@ public enum Client {
         out.writeObject(p);
     }
 
+    public void sendAnswer(String answer) throws IOException {
+            Payload p = new Payload();
+            p.setPayloadType(PayloadType.ANSWER);
+            p.setMessage(answer);
+            out.writeObject(p);
+    }
+
+
     protected void sendDisconnect() throws IOException {
         Payload p = new Payload();
         p.setPayloadType(PayloadType.DISCONNECT);
@@ -202,6 +210,9 @@ public enum Client {
                 System.out.println(String.format("*%s %s*",
                         p.getClientName(),
                         p.getMessage()));
+                        events.forEach(e -> {
+                            e.onClientConnect(p.getClientId(), p.getClientName(), p.getMessage());
+                        });
                 break;
             case DISCONNECT:
                 if (userList.containsKey(p.getClientId())) {
