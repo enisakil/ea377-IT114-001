@@ -142,4 +142,8 @@ public class GamePanel extends JPanel implements IGameEvents {
     public void onReceiveReady(long clientId) {
     }
 
+    @Override
+    public void onReceiveQuestionAndAnswers(String question, List<String> answers) {
+    }
+
 }

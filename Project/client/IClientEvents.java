@@ -1,5 +1,9 @@
 package Project.client;
 
+import java.util.List;
+
+import Project.common.Payload;
+
 public interface IClientEvents {
     /**
      * Triggered when a client connects
@@ -61,4 +65,8 @@ public interface IClientEvents {
      * @param roomName
      */
     void onRoomJoin(String roomName);
+
+    void onReceiveQuestionAndAnswers(String question, List<String> answers);
+
+
 }

@@ -42,6 +42,8 @@ public class GameRoom extends Room {
             Question randomQuestion = questionDatabase.getRandomQuestion(randomCategory);
 
             if (randomQuestion != null) {
+                //ea377 12/10/23
+                updatePhase(Phase.DISPLAY_QUESTION);
                 // Broadcast the start of the game session and the random question
                 broadcast("Game session started! Category: " + randomCategory);
                 broadcast("Question: " + randomQuestion.getText()); // Updated line

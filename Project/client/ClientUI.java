@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.util.Hashtable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.List;
 
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
@@ -22,6 +23,7 @@ import Project.client.views.Menu;
 import Project.client.views.RoomsPanel;
 import Project.client.views.UserInputPanel;
 import Project.common.Constants;
+import Project.common.Payload;
 
 public class ClientUI extends JFrame implements IClientEvents, ICardControls {
     CardLayout card = null;// accessible so we can call next() and previous()
@@ -235,11 +237,24 @@ public class ClientUI extends JFrame implements IClientEvents, ICardControls {
             }
         }
     }
-
     @Override
     public void onRoomJoin(String roomName) {
         if (currentCard.ordinal() >= Card.CHAT.ordinal()) {
             chatGamePanel.getChatPanel().addText("Joined room " + roomName);
         }
+    }
+    @Override
+    public void onReceiveQuestionAndAnswers(String question, List<String> answers) {
+        // Update your UI with the received question and answers
+        // Example: Assuming you have a method updateUIWithQuestionAndAnswers in your client UI class
+        updateUIWithQuestionAndAnswers(question, answers);
+    }
+
+    private void updateUIWithQuestionAndAnswers(String question, List<String> answers) {
+        // Add your logic to update the UI with the question and answers
+        // For example, you might want to display the question and answers in a specific panel
+        chatGamePanel.getChatPanel().addText("Received Question: " + question);
+        chatGamePanel.getChatPanel().addText("Possible Answers: " + String.join(", ", answers));
+        // Add more UI update logic as needed
     }
 }

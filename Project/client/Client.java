@@ -304,6 +304,16 @@ public enum Client {
             case START_GAME:
                 System.out.println(String.format("The game is starting", p.getMessage()));
                 break;
+            //ea377 11/10/23
+            case QUESTION_ANSWERS:
+                p.getQuestion();
+                p.getAnswers();
+                events.forEach(e -> {
+                if (e instanceof IGameEvents) {
+                        ((IGameEvents) e).onReceiveReady(p.getClientId());
+            }
+            });
+            break;
             default:
                 logger.warning(String.format("Unhandled Payload type: %s", p.getPayloadType()));
                 break;
