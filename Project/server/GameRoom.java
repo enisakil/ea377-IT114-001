@@ -35,6 +35,7 @@ public class GameRoom extends Room {
     }
     public void startGameSession() {
         // Get a random category
+        updatePhase(Phase.IN_PROGRESS);
         String randomCategory = questionDatabase.getRandomCategory();
 
         if (randomCategory != null) {
@@ -44,6 +45,12 @@ public class GameRoom extends Room {
             if (randomQuestion != null) {
                 //ea377 12/10/23
                 updatePhase(Phase.DISPLAY_QUESTION);
+
+                Payload questionAnswersPayload = new Payload();
+                questionAnswersPayload.setPayloadType(PayloadType.QUESTION_ANSWERS);
+                questionAnswersPayload.setMessage(randomQuestion.getText());
+                questionAnswersPayload.setAnswers(Arrays.asList(randomQuestion.getOptions()));
+
                 // Broadcast the start of the game session and the random question
                 broadcast("Game session started! Category: " + randomCategory);
                 broadcast("Question: " + randomQuestion.getText()); // Updated line
@@ -78,10 +85,8 @@ public class GameRoom extends Room {
         startRoundTimer(60);
 
         processPlayerAnswers();
-
-
-
     }
+
     private void processPlayerAnswers() {
     // Create a map to store player scores based on their response time
     Map<ServerPlayer, Long> playerScores = new HashMap<>();
@@ -339,11 +344,9 @@ private void startNextRound() {
         updatePhase(Phase.IN_PROGRESS);
         // TODO example
         sendMessage(null, "Session started");
-        new TimedEvent(30, () -> resetSession())
-                .setTickCallback((time) -> {
-                    sendMessage(null, String.format("Example running session, time remaining: %s", time));
-                });
-        Question randomQuestion = questionDatabase.getRandomQuestion("Geography"); // Replace "SomeCategory" with the actual category
+        new TimedEvent(30, () -> resetSession());
+
+        Question randomQuestion = questionDatabase.getRandomQuestion(questionDatabase.getRandomCategory()); // Replace "SomeCategory" with the actual category
     if (randomQuestion != null) {
         sendMessage(null, "Session started. Here's your question:");
         sendMessage(null, randomQuestion.getText());
@@ -358,6 +361,7 @@ private void startNextRound() {
             sendMessage(null, String.format("Example running session, time remaining: %s", time));
         });
     }
+
 
     private synchronized void resetSession() {
         players.values().stream().forEach(p -> p.setReady(false));

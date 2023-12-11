@@ -2,6 +2,9 @@ package Project.client.views;
 
 import java.awt.CardLayout;
 import java.awt.Component;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.io.IOException;
@@ -21,6 +24,9 @@ import Project.server.QuestionDatabase;
 
 public class GamePanel extends JPanel implements IGameEvents {
     private CardLayout cardLayout;
+    private JPanel questionPanel;
+    private JPanel answersPanel;
+    private String[] answerList = Question.getOptions();
 
     public GamePanel(ICardControls controls) {
         super(new CardLayout());
@@ -39,7 +45,11 @@ public class GamePanel extends JPanel implements IGameEvents {
                 // System.out.println("Moved to " + e.getComponent().getLocation());
             }
         });
+
         createReadyPanel();
+        createQuestionPanel();
+        createAnswersPanel(answerList);
+
         setVisible(false);
         // don't need to add this to ClientUI as this isn't a primary panel(it's nested
         // in ChatGamePanel)
@@ -62,33 +72,37 @@ public class GamePanel extends JPanel implements IGameEvents {
         this.add(readyPanel);
     }
 
-    private void resetView() {
-        removeAll();
-        revalidate();
-        repaint();
+    private void createQuestionPanel() {
+        questionPanel = new JPanel();
+        JLabel questionLabel = new JLabel();
+        questionPanel.add(questionLabel);
+        this.add(questionPanel, "questionPanel");
     }
 
-    private void showQuestion(String question, List<String> answerOptions) {
-        resetView();
+    private void createAnswersPanel(String[] answers) {
+        answersPanel = new JPanel(new GridLayout(0, 1));
 
-        JLabel questionLabel = new JLabel(question);
-        add(questionLabel);
-
-        for (String answer : answerOptions) {
+        for (String answer : answers) {
             JButton answerButton = new JButton(answer);
-            answerButton.addActionListener(e -> handleAnswer(answer));
-            add(answerButton);
+            answerButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    try {
+                        // Send the selected answer to the server
+                        Client.INSTANCE.sendAnswer(answer);
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+            });
+            answersPanel.add(answerButton);
         }
-        revalidate();
+        this.add(answersPanel, "answersPanel");
+         revalidate();
         repaint();
     }
-    private void handleAnswer(String answer) {
-        try {
-            Client.INSTANCE.sendAnswer(answer);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+
+
 
     @Override
     public void onClientConnect(long id, String clientName, String message) {
@@ -144,6 +158,31 @@ public class GamePanel extends JPanel implements IGameEvents {
 
     @Override
     public void onReceiveQuestionAndAnswers(String question, List<String> answers) {
+        JLabel questionLabel = (JLabel) questionPanel.getComponent(0);
+        questionLabel.setText(question);
+
+        answersPanel.removeAll();
+
+        for (String answer : answers) {
+            JButton answerButton = new JButton(answer);
+            answerButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    try {
+                        // Send the selected answer to the server
+                        Client.INSTANCE.sendAnswer(answer);
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+            });
+            answersPanel.add(answerButton);
+        }
+        answersPanel.revalidate();
+        answersPanel.repaint();
+
+        // Switch to the answers panel
+        cardLayout.show(this, "answersPanel");
     }
 
 }
