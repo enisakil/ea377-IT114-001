@@ -64,9 +64,9 @@ public interface IClientEvents {
      * 
      * @param roomName
      */
-    void onRoomJoin(String roomName);
+    void onRoomJoin(String roomName); 
 
-    void onReceiveQuestionAndAnswers(String question, List<String> answers);
+    void onReceiveQuestionAndAnswers(String question, String[] answers);
 
 
 }

@@ -20,5 +20,6 @@ public interface IGameEvents extends IClientEvents {
     void onReceivePhase(Phase phase);
 
     
+    void onReceiveQuestionAndAnswers(String question, String[] answers);
 
 }

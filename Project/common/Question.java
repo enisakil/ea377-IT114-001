@@ -7,7 +7,7 @@ public class Question implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private String text;
-    private static String[] options;
+    private String[] options;
     private int correctOptionIndex;
     private String category;
 
@@ -22,7 +22,7 @@ public class Question implements Serializable {
         return text;
     }
 
-    public static String[] getOptions() {
+    public String[] getOptions() {
         return options;
     }
 

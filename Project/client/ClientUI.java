@@ -244,13 +244,13 @@ public class ClientUI extends JFrame implements IClientEvents, ICardControls {
         }
     }
     @Override
-    public void onReceiveQuestionAndAnswers(String question, List<String> answers) {
+    public void onReceiveQuestionAndAnswers(String question, String[] answers) {
         // Update your UI with the received question and answers
         // Example: Assuming you have a method updateUIWithQuestionAndAnswers in your client UI class
         updateUIWithQuestionAndAnswers(question, answers);
     }
 
-    private void updateUIWithQuestionAndAnswers(String question, List<String> answers) {
+    private void updateUIWithQuestionAndAnswers(String question, String[] answers) {
         // Add your logic to update the UI with the question and answers
         // For example, you might want to display the question and answers in a specific panel
         chatGamePanel.getChatPanel().addText("Received Question: " + question);
