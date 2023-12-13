@@ -9,11 +9,15 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 
 import Project.client.Card;
 import Project.client.Client;
@@ -27,8 +31,9 @@ import Project.server.GameRoom;
 public class GamePanel extends JPanel implements IGameEvents {
     private CardLayout cardLayout;
     private JPanel questionPanel;
-    private JPanel answersPanel;
-    private Question currentQuestion;
+    private JLabel timerLabel;
+    private Timer timer;
+    private Map<Long, JLabel> scoreLabels = new HashMap<>();
 
     public GamePanel(ICardControls controls) {
         super(new CardLayout());
@@ -50,12 +55,16 @@ public class GamePanel extends JPanel implements IGameEvents {
 
         createReadyPanel();
         createQuestionPanel();
+        createTimerLabel();
+        createScorePanel();
 
         setVisible(false);
         // don't need to add this to ClientUI as this isn't a primary panel(it's nested
         // in ChatGamePanel)
         // controls.addPanel(Card.GAME_SCREEN.name(), this);
     }
+
+    
 
     private void createReadyPanel() {
         JPanel readyPanel = new JPanel();
@@ -82,6 +91,12 @@ public class GamePanel extends JPanel implements IGameEvents {
             @Override
             public void actionPerformed(ActionEvent e) {
                 System.out.println("Button A clicked");
+                try {
+                    Client.INSTANCE.sendAnswer("A");
+                } catch (IOException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                }
             }
         });
         JButton b = new JButton();
@@ -90,6 +105,12 @@ public class GamePanel extends JPanel implements IGameEvents {
             @Override
             public void actionPerformed(ActionEvent e) {
                 System.out.println("Button B clicked");
+                try {
+                    Client.INSTANCE.sendAnswer("B");
+                } catch (IOException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                }
             }
         });
         JButton c = new JButton();
@@ -98,6 +119,12 @@ public class GamePanel extends JPanel implements IGameEvents {
             @Override
             public void actionPerformed(ActionEvent e) {
                 System.out.println("Button C clicked");
+                try {
+                    Client.INSTANCE.sendAnswer("C");
+                } catch (IOException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                }
             }
         });
         
@@ -107,6 +134,12 @@ public class GamePanel extends JPanel implements IGameEvents {
             @Override
             public void actionPerformed(ActionEvent e) {
                 System.out.println("Button D clicked");
+                try {
+                    Client.INSTANCE.sendAnswer("D");
+                } catch (IOException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                }
             }
         });
         questionPanel.add(questionLabel);
@@ -115,6 +148,49 @@ public class GamePanel extends JPanel implements IGameEvents {
         questionPanel.add(c);
         questionPanel.add(d);
         this.add(questionPanel, "questionPanel");
+    }
+
+    private void createTimerLabel() {
+        timerLabel = new JLabel("Timer: ");
+        this.add(timerLabel);
+    }
+
+        private void createScorePanel() {
+        JPanel scorePanel = new JPanel();
+        scorePanel.setLayout(new GridLayout(0, 1));
+    
+        for (Map.Entry<Long, JLabel> entry : scoreLabels.entrySet()) {
+            JLabel scoreLabel = new JLabel();
+            scoreLabel.setText(entry.getValue().getText());
+            scorePanel.add(scoreLabel);
+        }
+    
+        this.add(scorePanel, "scorePanel");
+        cardLayout.show(this, "scorePanel");
+    }
+
+    private void startTimer(int durationInSeconds) {
+        if (timer != null && timer.isRunning()) {
+            timer.stop();
+        }
+    
+        timer = new javax.swing.Timer(1000, new ActionListener() {
+            private int remainingTime = durationInSeconds;
+    
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                timerLabel.setText("Timer: " + remainingTime + " seconds");
+    
+                if (remainingTime == 0) {
+                    // Timer expired, handle accordingly
+                    timer.stop();
+                }
+    
+                remainingTime--;
+            }
+        });
+    
+        timer.start();
     }
 
 
@@ -160,8 +236,13 @@ public class GamePanel extends JPanel implements IGameEvents {
             getParent().revalidate();
             getParent().repaint();
             System.out.println("GamePanel visible");
+        } else if (phase == Phase.DISPLAY_QUESTION) {
+            // Assuming roundTimer is the duration of the round in seconds
+            int roundTimer = 60; // Change this value based on your requirement
+            startTimer(roundTimer);
         } else {
             cardLayout.show(this, "questionPanel");
+            cardLayout.show(this, "scorePanel");
             setVisible(true);
             getParent().revalidate();
             getParent().repaint();
@@ -200,5 +281,24 @@ public class GamePanel extends JPanel implements IGameEvents {
         // Switch to the answers panel
         cardLayout.show(this, "questionPanel");
     }
+
+    @Override
+    public void onUpdateScore(long playerId, int score) {
+        // Update the score label for the specified player
+    SwingUtilities.invokeLater(() -> {
+        JLabel scoreLabel = scoreLabels.get(playerId);
+        if (scoreLabel != null) {
+            scoreLabel.setText("Score: " + score);
+        } else {
+            JLabel newScoreLabel = new JLabel("Score: " + score);
+            scoreLabels.put(playerId, newScoreLabel);
+            add(newScoreLabel);
+            revalidate();
+            repaint();
+        }
+        createScorePanel();
+    });
+}
+
 
 }

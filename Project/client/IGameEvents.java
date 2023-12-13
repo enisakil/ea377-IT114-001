@@ -1,6 +1,7 @@
 package Project.client;
 
 import java.util.List;
+import java.util.Map;
 
 import Project.common.Phase;
 
@@ -21,5 +22,8 @@ public interface IGameEvents extends IClientEvents {
 
     
     void onReceiveQuestionAndAnswers(String question, String[] answers);
+
+    void onUpdateScore(long playerId, int score);
+
 
 }

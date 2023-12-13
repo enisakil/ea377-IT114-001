@@ -162,6 +162,12 @@ public class ServerThread extends Thread {
     p.setAnswers(question.getOptions());
     return send(p);
 }
+    public boolean sendScore(int score) {
+        Payload p = new Payload();
+        p.setPayloadType(PayloadType.SCORE);
+        p.setScore(score);
+        return send(p);
+    }
 
     private boolean send(Payload payload) {
         try {
@@ -263,7 +269,7 @@ public class ServerThread extends Thread {
                 }
                 break;
             //ea377 11/18/23
-            case PICK:
+            case ANSWER:
             try {
                 ((GameRoom)currentRoom).handlePlayerPick(this, p.getMessage() );
                 } catch (Exception e) {

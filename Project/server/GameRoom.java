@@ -110,7 +110,7 @@ public class GameRoom extends Room {
         });
 
         // Broadcast the scores to all players
-        broadcastScores(playerScores);
+        broadcastScores();
 
         // Reset for the next round
         resetRound();
@@ -118,9 +118,12 @@ public class GameRoom extends Room {
 }
 //ea377 11/21/23
 private boolean isAnswerCorrect(String pickedAnswer) {
-    // Compare the picked answer with the correct answer
+    pickedAnswer = pickedAnswer.toUpperCase();
+
     int correctOptionIndex = currentQuestion.getCorrectOptionIndex();
-    return currentQuestion.getOptions()[correctOptionIndex].equalsIgnoreCase(pickedAnswer);
+    String correctAnswer = Character.toString((char) ('A' + correctOptionIndex));
+
+    return correctAnswer.equals(pickedAnswer);
 }
 private long calculatePoints(boolean isCorrect, long responseTime) {
     // TODO: Customize the points calculation based on your game's scoring rules
@@ -312,17 +315,17 @@ private void startNextRound() {
         broadcast(pickPayload.toString());
     });
     }
-    private void broadcastScores(Map<ServerPlayer, Long> playerScores) {
+    private void broadcastScores() {
         // Broadcast scores to all players
-        playerScores.forEach((player, points) -> {
+        for (ServerPlayer player : players.values()) {
+            long playerId = player.getClient().getClientId();
+            int score = player.getTotalScore();
             Payload scorePayload = new Payload();
             scorePayload.setPayloadType(PayloadType.SCORE);
-            scorePayload.setClientId(player.getClient().getClientId());
-            scorePayload.setClientName(player.getClient().getClientName());
-            scorePayload.setMessage(String.valueOf(points));
-    
+            scorePayload.setClientId(playerId);
+            scorePayload.setScore(score);
             broadcast(scorePayload.toString());
-        });
+        };
     }
     
     private void resetRound() {

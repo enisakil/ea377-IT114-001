@@ -146,6 +146,12 @@ public enum Client {
         p.setMessage(pick);
         out.writeObject(p);
     }
+    public void sendScore(String score) throws IOException {
+        Payload p = new Payload();
+        p.setPayloadType(PayloadType.SCORE);
+        p.setMessage(score);
+        out.writeObject(p);
+    }
     private void sendStartGameCommand() throws IOException {
         Payload p = new Payload();
         p.setPayloadType(PayloadType.START_GAME);
@@ -314,6 +320,13 @@ public enum Client {
                         ((IGameEvents) e).onReceiveQuestionAndAnswers(p.getQuestion(), p.getAnswers());
             }
             });
+            case SCORE:
+                p.getScore();
+                events.forEach(e -> {
+                    if (e instanceof IGameEvents) {
+                        ((IGameEvents) e).onUpdateScore(p.getClientId(), p.getScore());
+                    }
+                });
             break;
             default:
                 logger.warning(String.format("Unhandled Payload type: %s", p.getPayloadType()));

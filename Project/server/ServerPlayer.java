@@ -6,7 +6,7 @@ public class ServerPlayer extends Player {
     private ServerThread client;
     //ea377 11/18/23
     private String roundPick;
-    private long TotalScore = 0;
+    private int TotalScore = 0;
 
     public void setClient(ServerThread client) {
         this.client = client;
@@ -31,7 +31,7 @@ public class ServerPlayer extends Player {
     public void addtoTotalScore(long RoundScore) {
         TotalScore+=RoundScore;
     }
-    public long getTotalScore() {
+    public int getTotalScore() {
         return TotalScore;
     }
 }
