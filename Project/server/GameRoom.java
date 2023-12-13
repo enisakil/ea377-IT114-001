@@ -101,11 +101,15 @@ public class GameRoom extends Room {
                 // Award points based on correctness and response time
                 long points = calculatePoints(isCorrect, responseTime);
 
+                if (points == -1) {
+                    endGame(player);
+                } else {
                 // Update player scores
                 playerScores.put(player, points);
                 
                 // Update player's total score
                 player.addtoTotalScore(points);
+                }
             }
         });
 
@@ -131,15 +135,29 @@ private long calculatePoints(boolean isCorrect, long responseTime) {
     if(isCorrect) {
         long basePoints = isCorrect ? 10 : 0;
         long timeBonus = Math.max(0, 10 - responseTime); //10 bonus points for quicker responses
-        return basePoints + timeBonus;
-    } else {
-        return 0;
+        long points = basePoints + timeBonus;
+
+        if (points >= 100) {
+            return -1; // Special value indicating game end
+        }
+            return points;
+        } else {
+            return 0;
+        }
 }
-}
+
 private ServerPlayer getPlayerById(long playerId) {
     return players.get(playerId);
 }
 
+private void endGame(ServerPlayer winner) {
+    // Broadcast the winner and end the game
+    broadcast("Game Over! " + winner.getClient().getClientName() + " has won with 100 points!");
+    // Implement any other game-ending logic as needed
+
+    // For example, reset the session to allow for a new game
+    resetSession();
+}
 
 
 
@@ -289,6 +307,7 @@ private ServerPlayer getPlayerById(long playerId) {
                 player.getClient().sendMessage(Constants.DEFAULT_CLIENT_ID, message);
             }
         }
+        updatePhase(Phase.END_ROUND);
         broadcastPicks();
         // Delay before starting the next round (adjust the duration as needed)
         int delayInSeconds = 5; // 5 seconds delay

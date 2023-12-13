@@ -56,7 +56,6 @@ public class GamePanel extends JPanel implements IGameEvents {
         createReadyPanel();
         createQuestionPanel();
         createTimerLabel();
-        createScorePanel();
 
         setVisible(false);
         // don't need to add this to ClientUI as this isn't a primary panel(it's nested
@@ -236,13 +235,16 @@ public class GamePanel extends JPanel implements IGameEvents {
             getParent().revalidate();
             getParent().repaint();
             System.out.println("GamePanel visible");
-        } else if (phase == Phase.DISPLAY_QUESTION) {
+        } else if (phase == Phase.END_ROUND){
+            cardLayout.show(this, "scorePanel");
+            setVisible(true);
+            getParent().revalidate();
+            getParent().repaint();
+        } else {
             // Assuming roundTimer is the duration of the round in seconds
             int roundTimer = 60; // Change this value based on your requirement
             startTimer(roundTimer);
-        } else {
             cardLayout.show(this, "questionPanel");
-            cardLayout.show(this, "scorePanel");
             setVisible(true);
             getParent().revalidate();
             getParent().repaint();
