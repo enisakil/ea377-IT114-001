@@ -78,12 +78,37 @@ public class GamePanel extends JPanel implements IGameEvents {
         JLabel questionLabel = new JLabel("Question: ");
         JButton a = new JButton();
         a.setText("A");
+        a.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("Button A clicked");
+            }
+        });
         JButton b = new JButton();
         b.setText("B");
+        b.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("Button B clicked");
+            }
+        });
         JButton c = new JButton();
         c.setText("C");
+        c.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("Button C clicked");
+            }
+        });
+        
         JButton d = new JButton();
         d.setText("D");
+        d.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("Button D clicked");
+            }
+        });
         questionPanel.add(questionLabel);
         questionPanel.add(a);
         questionPanel.add(b);
@@ -167,31 +192,10 @@ public class GamePanel extends JPanel implements IGameEvents {
             }
         }
 
-        for (int i = 0; i < answers.length; i++) {
-            JButton answerButton;
-
-            if (i < answerButtons.size()) {
-                answerButton = answerButtons.get(i);
-            } else {
-                answerButton = new JButton();
-                answerButton.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        try {
-                            // Send the selected answer to the server
-                            Client.INSTANCE.sendAnswer(answerButton.getText());
-                        } catch (IOException ex) {
-                            ex.printStackTrace();
-                        }
-                    }
-                });
-                questionPanel.add(answerButton);
-            }
-            answerButton.setText(Character.toString((char) ('A' + i)) + ". " + answers[i]);
+        for (int i = 0; i < answers.length && i < answerButtons.size(); i++) {
+            // Set the text for the answer button (e.g., A, B, C, D)
+            answerButtons.get(i).setText(Character.toString((char) ('A' + i)) + ". " + answers[i]);
         }
-
-        questionPanel.revalidate();
-        questionPanel.repaint();
 
         // Switch to the answers panel
         cardLayout.show(this, "questionPanel");
