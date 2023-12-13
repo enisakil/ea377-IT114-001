@@ -154,11 +154,12 @@ public class ServerThread extends Thread {
         pickPayload.setPayloadType(PayloadType.PICK);
         pickPayload.setMessage("/pick " + pickedAnswer);
     }
+    //ea377 12/12/23
     public boolean sendQuestionAndAnswers(Question question) {
     Payload p = new Payload();
     p.setPayloadType(PayloadType.QUESTION_ANSWERS);
     p.setQuestion(question.getText());
-    p.setAnswers(Arrays.asList(question.getOptions()));
+    p.setAnswers(question.getOptions());
     return send(p);
 }
 

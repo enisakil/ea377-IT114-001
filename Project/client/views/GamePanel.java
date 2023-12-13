@@ -148,38 +148,48 @@ public class GamePanel extends JPanel implements IGameEvents {
     public void onReceiveReady(long clientId) {
     }
 
+    //ea377 12/12/23
     @Override
     public void onReceiveQuestionAndAnswers(String question, String[] answers) {
+        System.out.println("question: " + question);
+        System.out.println("Answers: " + String.join(",", answers));
+
         JLabel questionLabel = (JLabel) questionPanel.getComponent(0);
         questionLabel.setText(question);
-
-        List<Component> componentsToRemove = new ArrayList<>();
+        
 
         Component[] components = questionPanel.getComponents();
-    for (Component component : components) {
-        if (component instanceof JButton) {
-            componentsToRemove.add(component);
-        }
-    }
-    for (Component componentToRemove : componentsToRemove) {
-        questionPanel.remove(componentToRemove);
-    }
+        List<JButton> answerButtons = new ArrayList<>();
 
-        for (String answer : answers) {
-            JButton answerButton = new JButton(answer);
-            answerButton.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    try {
-                        // Send the selected answer to the server
-                        Client.INSTANCE.sendAnswer(answer);
-                    } catch (IOException ex) {
-                        ex.printStackTrace();
-                    }
-                }
-            });
-            questionPanel.add(answerButton);
+        for (Component component : components) {
+            if (component instanceof JButton) {
+                answerButtons.add((JButton) component);
+            }
         }
+
+        for (int i = 0; i < answers.length; i++) {
+            JButton answerButton;
+
+            if (i < answerButtons.size()) {
+                answerButton = answerButtons.get(i);
+            } else {
+                answerButton = new JButton();
+                answerButton.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        try {
+                            // Send the selected answer to the server
+                            Client.INSTANCE.sendAnswer(answerButton.getText());
+                        } catch (IOException ex) {
+                            ex.printStackTrace();
+                        }
+                    }
+                });
+                questionPanel.add(answerButton);
+            }
+            answerButton.setText(Character.toString((char) ('A' + i)) + ". " + answers[i]);
+        }
+
         questionPanel.revalidate();
         questionPanel.repaint();
 

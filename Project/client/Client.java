@@ -308,9 +308,10 @@ public enum Client {
             case QUESTION_ANSWERS:
                 p.getQuestion();
                 p.getAnswers();
+                //ea377 12/12/23
                 events.forEach(e -> {
                 if (e instanceof IGameEvents) {
-                        ((IGameEvents) e).onReceiveReady(p.getClientId());
+                        ((IGameEvents) e).onReceiveQuestionAndAnswers(p.getQuestion(), p.getAnswers());
             }
             });
             break;

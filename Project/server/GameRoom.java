@@ -46,10 +46,9 @@ public class GameRoom extends Room {
                 //ea377 12/10/23
                 updatePhase(Phase.DISPLAY_QUESTION);
 
-                Payload questionAnswersPayload = new Payload();
-                questionAnswersPayload.setPayloadType(PayloadType.QUESTION_ANSWERS);
-                questionAnswersPayload.setMessage(randomQuestion.getText());
-                questionAnswersPayload.setAnswers(Arrays.asList(randomQuestion.getOptions()));
+                for (ServerPlayer player : players.values()) {
+                    player.getClient().sendQuestionAndAnswers(randomQuestion);
+                }
 
                 // Broadcast the start of the game session and the random question
                 broadcast("Game session started! Category: " + randomCategory);

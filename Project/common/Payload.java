@@ -90,7 +90,7 @@ public class Payload implements Serializable {
     }
 
     private String question;
-    private List<String> answers;
+    private String[] answers;
 
     public String getQuestion() {
         return question;
@@ -100,11 +100,11 @@ public class Payload implements Serializable {
         this.question = question;
     }
 
-    public List<String> getAnswers() {
+    public String[] getAnswers() {
         return answers;
     }
 
-    public void setAnswers(List<String> answers) {
+    public void setAnswers(String[] answers) {
         this.answers = answers;
     }
 
