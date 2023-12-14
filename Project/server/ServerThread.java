@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -11,6 +12,7 @@ import Project.common.Constants;
 import Project.common.Payload;
 import Project.common.PayloadType;
 import Project.common.Phase;
+import Project.common.Question;
 import Project.common.RoomResultPayload;
 
 /**
@@ -152,6 +154,20 @@ public class ServerThread extends Thread {
         pickPayload.setPayloadType(PayloadType.PICK);
         pickPayload.setMessage("/pick " + pickedAnswer);
     }
+    //ea377 12/12/23
+    public boolean sendQuestionAndAnswers(Question question) {
+    Payload p = new Payload();
+    p.setPayloadType(PayloadType.QUESTION_ANSWERS);
+    p.setQuestion(question.getText());
+    p.setAnswers(question.getOptions());
+    return send(p);
+}
+    public boolean sendScore(int score) {
+        Payload p = new Payload();
+        p.setPayloadType(PayloadType.SCORE);
+        p.setScore(score);
+        return send(p);
+    }
 
     private boolean send(Payload payload) {
         try {
@@ -253,7 +269,7 @@ public class ServerThread extends Thread {
                 }
                 break;
             //ea377 11/18/23
-            case PICK:
+            case ANSWER:
             try {
                 ((GameRoom)currentRoom).handlePlayerPick(this, p.getMessage() );
                 } catch (Exception e) {

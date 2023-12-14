@@ -35,6 +35,7 @@ public class GameRoom extends Room {
     }
     public void startGameSession() {
         // Get a random category
+        updatePhase(Phase.IN_PROGRESS);
         String randomCategory = questionDatabase.getRandomCategory();
 
         if (randomCategory != null) {
@@ -42,6 +43,13 @@ public class GameRoom extends Room {
             Question randomQuestion = questionDatabase.getRandomQuestion(randomCategory);
 
             if (randomQuestion != null) {
+                //ea377 12/10/23
+                updatePhase(Phase.DISPLAY_QUESTION);
+
+                for (ServerPlayer player : players.values()) {
+                    player.getClient().sendQuestionAndAnswers(randomQuestion);
+                }
+
                 // Broadcast the start of the game session and the random question
                 broadcast("Game session started! Category: " + randomCategory);
                 broadcast("Question: " + randomQuestion.getText()); // Updated line
@@ -76,10 +84,8 @@ public class GameRoom extends Room {
         startRoundTimer(60);
 
         processPlayerAnswers();
-
-
-
     }
+
     private void processPlayerAnswers() {
     // Create a map to store player scores based on their response time
     Map<ServerPlayer, Long> playerScores = new HashMap<>();
@@ -95,16 +101,20 @@ public class GameRoom extends Room {
                 // Award points based on correctness and response time
                 long points = calculatePoints(isCorrect, responseTime);
 
+                if (points == -1) {
+                    endGame(player);
+                } else {
                 // Update player scores
                 playerScores.put(player, points);
                 
                 // Update player's total score
                 player.addtoTotalScore(points);
+                }
             }
         });
 
         // Broadcast the scores to all players
-        broadcastScores(playerScores);
+        broadcastScores();
 
         // Reset for the next round
         resetRound();
@@ -112,9 +122,12 @@ public class GameRoom extends Room {
 }
 //ea377 11/21/23
 private boolean isAnswerCorrect(String pickedAnswer) {
-    // Compare the picked answer with the correct answer
+    pickedAnswer = pickedAnswer.toUpperCase();
+
     int correctOptionIndex = currentQuestion.getCorrectOptionIndex();
-    return currentQuestion.getOptions()[correctOptionIndex].equalsIgnoreCase(pickedAnswer);
+    String correctAnswer = Character.toString((char) ('A' + correctOptionIndex));
+
+    return correctAnswer.equals(pickedAnswer);
 }
 private long calculatePoints(boolean isCorrect, long responseTime) {
     // TODO: Customize the points calculation based on your game's scoring rules
@@ -122,15 +135,29 @@ private long calculatePoints(boolean isCorrect, long responseTime) {
     if(isCorrect) {
         long basePoints = isCorrect ? 10 : 0;
         long timeBonus = Math.max(0, 10 - responseTime); //10 bonus points for quicker responses
-        return basePoints + timeBonus;
-    } else {
-        return 0;
+        long points = basePoints + timeBonus;
+
+        if (points >= 100) {
+            return -1; // Special value indicating game end
+        }
+            return points;
+        } else {
+            return 0;
+        }
 }
-}
+
 private ServerPlayer getPlayerById(long playerId) {
     return players.get(playerId);
 }
 
+private void endGame(ServerPlayer winner) {
+    // Broadcast the winner and end the game
+    broadcast("Game Over! " + winner.getClient().getClientName() + " has won with 100 points!");
+    // Implement any other game-ending logic as needed
+
+    // For example, reset the session to allow for a new game
+    resetSession();
+}
 
 
 
@@ -145,6 +172,7 @@ private ServerPlayer getPlayerById(long playerId) {
             super.addClient(client);
             //ea377 11/18/23
             totalPlayers++;
+            client.sendPhaseSync(currentPhase);
             logger.info(String.format("Total clients %s", clients.size()));
             return player;
         });
@@ -279,6 +307,7 @@ private ServerPlayer getPlayerById(long playerId) {
                 player.getClient().sendMessage(Constants.DEFAULT_CLIENT_ID, message);
             }
         }
+        updatePhase(Phase.END_ROUND);
         broadcastPicks();
         // Delay before starting the next round (adjust the duration as needed)
         int delayInSeconds = 5; // 5 seconds delay
@@ -305,17 +334,17 @@ private void startNextRound() {
         broadcast(pickPayload.toString());
     });
     }
-    private void broadcastScores(Map<ServerPlayer, Long> playerScores) {
+    private void broadcastScores() {
         // Broadcast scores to all players
-        playerScores.forEach((player, points) -> {
+        for (ServerPlayer player : players.values()) {
+            long playerId = player.getClient().getClientId();
+            int score = player.getTotalScore();
             Payload scorePayload = new Payload();
             scorePayload.setPayloadType(PayloadType.SCORE);
-            scorePayload.setClientId(player.getClient().getClientId());
-            scorePayload.setClientName(player.getClient().getClientName());
-            scorePayload.setMessage(String.valueOf(points));
-    
+            scorePayload.setClientId(playerId);
+            scorePayload.setScore(score);
             broadcast(scorePayload.toString());
-        });
+        };
     }
     
     private void resetRound() {
@@ -336,11 +365,9 @@ private void startNextRound() {
         updatePhase(Phase.IN_PROGRESS);
         // TODO example
         sendMessage(null, "Session started");
-        new TimedEvent(30, () -> resetSession())
-                .setTickCallback((time) -> {
-                    sendMessage(null, String.format("Example running session, time remaining: %s", time));
-                });
-        Question randomQuestion = questionDatabase.getRandomQuestion("Geography"); // Replace "SomeCategory" with the actual category
+        new TimedEvent(30, () -> resetSession());
+
+        Question randomQuestion = questionDatabase.getRandomQuestion(questionDatabase.getRandomCategory()); // Replace "SomeCategory" with the actual category
     if (randomQuestion != null) {
         sendMessage(null, "Session started. Here's your question:");
         sendMessage(null, randomQuestion.getText());
@@ -355,6 +382,7 @@ private void startNextRound() {
             sendMessage(null, String.format("Example running session, time remaining: %s", time));
         });
     }
+
 
     private synchronized void resetSession() {
         players.values().stream().forEach(p -> p.setReady(false));

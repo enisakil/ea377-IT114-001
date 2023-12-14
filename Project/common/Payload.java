@@ -88,9 +88,34 @@ public class Payload implements Serializable {
     public void setMessage(String message) {
         this.message = message;
     }
+
+    private String question;
+    private String[] answers;
+
+    public String getQuestion() {
+        return question;
+    }
+
+    public void setQuestion(String question) {
+        this.question = question;
+    }
+
+    public String[] getAnswers() {
+        return answers;
+    }
+
+    public void setAnswers(String[] answers) {
+        this.answers = answers;
+    }
+
+
+
     // ea377 11/15/23
     @Override
     public String toString() {
-        return String.format("Type[%s],ClientId[%s,] ClientName[%s], Message[%s], PlayerIds[%s], ChosenAnswer[%s], Score[%s]", payloadType.toString(), clientId, clientName, message, playerIds, chosenAnswer, score);
+        if (payloadType == PayloadType.QUESTION_ANSWERS) {
+            return payloadType.name() + "|" + question + "|" + String.join("|", answers);
+        } else
+            return String.format("Type[%s],ClientId[%s,] ClientName[%s], Message[%s], PlayerIds[%s], ChosenAnswer[%s], Score[%s]", payloadType.toString(), clientId, clientName, message, playerIds, chosenAnswer, score);
     }
 }

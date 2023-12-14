@@ -22,6 +22,10 @@ public class QuestionDatabase {
         addQuestion(new Question("What is the capital of France?", new String[]{"Berlin", "Madrid", "Paris", "Rome"}, 2, "Geography: Europe"));
         addQuestion(new Question("Which planet is known as the Red Planet?", new String[]{"Earth", "Mars", "Jupiter", "Venus"}, 1, "Space"));
         addQuestion(new Question("What is the capital of New York", new String[]{"New York City", "Little Rock", "Rochester", "Albany"}, 3, "Geography: America"));
+        addQuestion(new Question("In which sport would you perform a slam dunk?", new String[]{"Soccer", "Basketball", "Tennis", "Golf"}, 1, "Sports"));
+        addQuestion(new Question("In which year did Christopher Columbus reach the Americas?", new String[]{"1492", "1520", "1607", "1620"}, 0, "History"));
+
+
 
         // Add more questions as needed
     }
