@@ -55,7 +55,6 @@ public class GamePanel extends JPanel implements IGameEvents {
 
         createReadyPanel();
         createQuestionPanel();
-        createTimerLabel();
 
         setVisible(false);
         // don't need to add this to ClientUI as this isn't a primary panel(it's nested
@@ -83,6 +82,10 @@ public class GamePanel extends JPanel implements IGameEvents {
 
     private void createQuestionPanel() {
         questionPanel = new JPanel();
+
+        JLabel timerLabel = new JLabel("Timer: 60 seconds"); // Initialize with the starting time
+        questionPanel.add(timerLabel);
+
         JLabel questionLabel = new JLabel("Question: ");
         JButton a = new JButton();
         a.setText("A");
@@ -147,6 +150,26 @@ public class GamePanel extends JPanel implements IGameEvents {
         questionPanel.add(c);
         questionPanel.add(d);
         this.add(questionPanel, "questionPanel");
+
+        Timer timer = new Timer(1000, new ActionListener() {
+            int timeRemaining = 60; // Assuming ROUND_DURATION is the length of the round in seconds
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (timeRemaining > 0) {
+                    timeRemaining--;
+                    timerLabel.setText("Time remaining: " + timeRemaining);
+            } else {
+                ((Timer)e.getSource()).stop();
+                timerLabel.setText("Time's up!");
+            }
+        }
+        
+    });
+timer.start();
+
+questionPanel.add(timerLabel);
+
     }
 
     private void createTimerLabel() {
@@ -242,8 +265,6 @@ public class GamePanel extends JPanel implements IGameEvents {
             getParent().repaint();
         } else {
             // Assuming roundTimer is the duration of the round in seconds
-            int roundTimer = 60; // Change this value based on your requirement
-            startTimer(roundTimer);
             cardLayout.show(this, "questionPanel");
             setVisible(true);
             getParent().revalidate();
