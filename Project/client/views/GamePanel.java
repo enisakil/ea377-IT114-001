@@ -25,14 +25,16 @@ import Project.client.ICardControls;
 import Project.client.IGameEvents;
 import Project.common.Phase;
 import Project.common.Question;
+import Project.common.TimedEvent;
 import Project.server.QuestionDatabase;
 import Project.server.GameRoom;
+import Project.common.TimedEvent;
 
 public class GamePanel extends JPanel implements IGameEvents {
     private CardLayout cardLayout;
     private JPanel questionPanel;
     private JLabel timerLabel;
-    private Timer timer;
+    private TimedEvent timer;
     private Map<Long, JLabel> scoreLabels = new HashMap<>();
 
     public GamePanel(ICardControls controls) {
@@ -151,24 +153,15 @@ public class GamePanel extends JPanel implements IGameEvents {
         questionPanel.add(d);
         this.add(questionPanel, "questionPanel");
 
-        Timer timer = new Timer(1000, new ActionListener() {
-            int timeRemaining = 60; // Assuming ROUND_DURATION is the length of the round in seconds
+        timer = new TimedEvent(60, () -> {
+            timerLabel.setText("Time's up!");
+            // Handle timer expiration logic
+        });
+        timer.setTickCallback(tick -> {
+            timerLabel.setText("Time remaining: " + tick + " seconds");
+        });
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (timeRemaining > 0) {
-                    timeRemaining--;
-                    timerLabel.setText("Time remaining: " + timeRemaining);
-            } else {
-                ((Timer)e.getSource()).stop();
-                timerLabel.setText("Time's up!");
-            }
-        }
-        
-    });
-timer.start();
-
-questionPanel.add(timerLabel);
+    questionPanel.add(timerLabel);
 
     }
 
@@ -191,30 +184,8 @@ questionPanel.add(timerLabel);
         cardLayout.show(this, "scorePanel");
     }
 
-    private void startTimer(int durationInSeconds) {
-        if (timer != null && timer.isRunning()) {
-            timer.stop();
-        }
     
-        timer = new javax.swing.Timer(1000, new ActionListener() {
-            private int remainingTime = durationInSeconds;
-    
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                timerLabel.setText("Timer: " + remainingTime + " seconds");
-    
-                if (remainingTime == 0) {
-                    // Timer expired, handle accordingly
-                    timer.stop();
-                }
-    
-                remainingTime--;
-            }
-        });
-    
-        timer.start();
-    }
-
+        
 
 
 
